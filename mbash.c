@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
         }else if(strcmp(cmd,"history") == 0){
             //si c'est history, on affiche l'historique
             show_history();
-        }else if(strcmp(cmd, "\033[A")){
+        }else if(strcmp(cmd, "\033[A") == 0){
             //si c'est la fleche du haut, on affiche la commande qui precede la commande de l'index
             printf("%s" , history[history_index--]);
         }else if (strcmp(cmd, "\033[B") == 0) {
@@ -128,10 +128,10 @@ int main(int argc, char** argv) {
                 history_index = history_len-1;
             }
             printf("%s" , history[history_index]);
-        } else if (strcmp(cmd, "\033[D") == 0) {
+        }else if (strcmp(cmd, "\033[D") == 0) {
             //la flèche gauche, on deplace le curseur vers la gauche
             
-        } else if (strcmp(cmd, "\033[C") == 0) {
+        }else if (strcmp(cmd, "\033[C") == 0) {
             // la flèche droite, on deplace le curseur vers la droite
         }else if(strcmp(cmd, "\t") == 0){
             //si c'est la touche tab, on fait de l'autocompletion
