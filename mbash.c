@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <sys/wait.h>
+#include <ncurses.h>
 #define MAXLI 2048
 //chaine de caractere pour stocker la commande courante
 char cmd[MAXLI];
@@ -128,8 +129,10 @@ int main(int argc, char** argv) {
         while ((ch = getch()) != KEY_F(1)) {
             if (ch == KEY_LEFT) {
                 // code pour la flèche gauche
+                printf("gauche");
             } else if (ch == KEY_RIGHT) {
                 // code pour la flèche droite
+                printf("droite");
             }
         }
         // On attend que l'utilisateur entre une commande bash
