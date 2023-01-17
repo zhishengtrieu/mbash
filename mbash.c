@@ -129,15 +129,34 @@ int main(int argc, char** argv) {
             
             //si on en a plus de 1, on affiche les commandes possibles
         */
-        int ch;
-        while ((ch = getch()) != KEY_F(1)) {
-            if (ch == KEY_LEFT) {
-                // code pour la flèche gauche
-                printf("gauche");
-            } else if (ch == KEY_RIGHT) {
-                // code pour la flèche droite
-                printf("droite");
-            }
+         // On lit l'entrée utilisateur
+        int ch = getch();
+        switch (ch) {
+            case KEY_LEFT:
+                // Code pour la flèche gauche
+                break;
+            case KEY_RIGHT:
+                // Code pour la flèche droite
+                break;
+            case KEY_UP:
+                // Code pour la flèche haut
+                break;
+            case KEY_DOWN:
+                // Code pour la flèche bas
+                break;
+            case 9: //tabulation
+                // Code pour la tabulation
+                break;
+            case 18: //ctrl-r
+                // Code pour ctrl-r
+                break;
+            case '\n':
+                // Si c'est une entrée valide, on traite la commande
+                mbash(cmd);
+                break;
+            default:
+                // Code pour les autres entrées
+                break;
         }
         // On attend que l'utilisateur entre une commande bash
     	
