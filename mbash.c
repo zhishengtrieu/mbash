@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <sys/wait.h>
 #include <readline/readline.h>
+#include <readline/history.h>
 #define MAXLI 2048
 //chaine de caractere pour stocker la commande courante
 char cmd[MAXLI];
