@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <sys/wait.h>
+#include <readline/readline.h>
 #define MAXLI 2048
 //chaine de caractere pour stocker la commande courante
 char cmd[MAXLI];
@@ -99,7 +100,8 @@ int main(int argc, char** argv) {
         	printf("mbash: %s$ ", dir);
         }    
         // On attend que l'utilisateur entre une commande bash
-    	
+    	char* cmd = readline();
+        printf("%s", cmd);
         //si on a pas de commande, on quitte (vient du ctrl-D)
         if (fgets(cmd, MAXLI, stdin) == NULL ) {
             printf("\nAu revoir !\n");
