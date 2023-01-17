@@ -216,7 +216,7 @@ int main(int argc, char** argv) {
             args[i] = NULL;
             //si on a plus d'une commande, on execute le pipe
             if (i > 1){
-                //
+                pipe_mbash(commandes);
             }else{
                 //sinon on execute la commande
                 mbash(cmd);
