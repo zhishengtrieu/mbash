@@ -89,39 +89,38 @@ void show_history() {
 
 //fonction pour exectuter plusieurs mbash dans un pipe
 void pipe_mbash(char** commandes){
+    //on cree un tableau de descripteur de fichier
     int fd[2];
-    pid_t pid;
-
-    //Créer un pipe
-    if (pipe(fd) == -1) {
-        perror("pipe");
-        return 1;
-    }
-    //Créer un processus fils
-    pid = fork();
-    if (pid == -1) {
-        perror("fork");
-        return 1;
-    }
-
+    //on cree un processus fils
+    int pid = fork();
     if (pid == 0) {
-        //Fermer l'entrée du pipe pour le processus fils
-        close(fd[0]);
-        //Rediriger la sortie standard vers l'entrée du pipe
-        dup2(fd[1], STDOUT_FILENO);
-        //on execute la commande
-        printf("commande 1: %s", commandes[0]);
-        mbash(commandes[0]);
+        //on cree un pipe
+        pipe(fd);
+        //on cree un processus fils
+        int pid2 = fork();
+        if (pid2 == 0) {
+            //on ferme l'entree du pipe
+            close(fd[0]);
+            //on redirige la sortie standard vers l'entree du pipe
+            dup2(fd[1], STDOUT_FILENO);
+            //on execute la premiere commande
+            mbash(commandes[0]);
+            //on ferme la sortie du pipe
+            close(fd[1]);
+        } else {
+            //on ferme la sortie du pipe
+            close(fd[1]);
+            //on redirige l'entree standard vers la sortie du pipe
+            dup2(fd[0], STDIN_FILENO);
+            //on execute la deuxieme commande
+            mbash(commandes[1]);
+            //on ferme l'entree du pipe
+            close(fd[0]);
+        }
     } else {
-        //Fermer la sortie du pipe pour le processus père
-        close(fd[1]);
-        //Rediriger l'entrée standard vers la sortie du pipe
-        dup2(fd[0], STDIN_FILENO);
-        //on execute la commande
-        printf("commande 2: %s", commandes[1]);
-        mbash(commandes[1]);
+        //le pere attend que le fils se termine
+        wait(NULL);
     }
-
 }
 
 // Le main va stocker les entrers de commandes de l'utilisateur
