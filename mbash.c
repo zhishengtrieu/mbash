@@ -167,7 +167,22 @@ int main(int argc, char** argv) {
         }else{
             //sinon on enregistre la commande dans l'historique et on l'execute
             save_history(cmd);
-            mbash(cmd);
+            //on verifie si la commande contient un pipe
+            char* commandes[MAXLI];
+            int i = 0;
+            char *token = strtok(cmd, "|");
+            while (token != NULL) {
+                args[i++] = token;
+                token = strtok(NULL, "|");
+            }
+            args[i] = NULL;
+            //si on a plus d'une commande, on execute le pipe
+            if (i > 1){
+                pipe_mbash(commandes);
+            }else{
+                //sinon on execute la commande
+                mbash(cmd);
+            }
         }
     }
     return 0;
