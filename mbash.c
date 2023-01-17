@@ -89,6 +89,10 @@ void show_history() {
 
 // Le main va stocker les entrers de commandes de l'utilisateur
 int main(int argc, char** argv) {
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
   // Boucle infinie permettant faire fonctionner le programme
   // Elle peut s'arrêter quand l'utilisateur utilise ctrl-D ou ctrl-C 
     while (1) {
@@ -125,10 +129,6 @@ int main(int argc, char** argv) {
             
             //si on en a plus de 1, on affiche les commandes possibles
         */
-       initscr();
-        cbreak();
-        noecho();
-        keypad(stdscr, TRUE);
         int ch;
         while ((ch = getch()) != KEY_F(1)) {
             if (ch == KEY_LEFT) {
@@ -139,7 +139,6 @@ int main(int argc, char** argv) {
                 printf("droite");
             }
         }
-        endwin();
         // On attend que l'utilisateur entre une commande bash
     	
         //si on a pas de commande, on quitte (vient du ctrl-D)
@@ -162,6 +161,7 @@ int main(int argc, char** argv) {
             mbash(cmd);
         }
     }
+    endwin();
     return 0;
 }
 
