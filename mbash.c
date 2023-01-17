@@ -4,8 +4,6 @@
 #include <unistd.h>
 #include <assert.h>
 #include <sys/wait.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 #define MAXLI 2048
 //chaine de caractere pour stocker la commande courante
 char cmd[MAXLI];
@@ -101,8 +99,6 @@ int main(int argc, char** argv) {
         	printf("mbash: %s$ ", dir);
         }    
         // On attend que l'utilisateur entre une commande bash
-    	char* cmd = readline();
-        printf("%s", cmd);
         //si on a pas de commande, on quitte (vient du ctrl-D)
         if (fgets(cmd, MAXLI, stdin) == NULL ) {
             printf("\nAu revoir !\n");
@@ -111,18 +107,19 @@ int main(int argc, char** argv) {
         //supprimer le dernier caractère qui est le retour à la ligne "\n"
         cmd[strcspn(cmd, "\n")] = 0;
 
-        //si la commande est exit on quitte
-        if (strcmp(cmd,"exit") == 0){
-            printf("Au revoir !\n");
-            break;
-        }
+        switch(cmd){
+            //si la commande est exit on quitte
+            case "exit":
+                printf("Au revoir !\n");
+                break;
             //si la commande est history on affiche l'historique
-        if(strcmp(cmd,"history") == 0){
-            show_history();
-        }else{
-            //sinon on l'enregistre dans l'historique et on execute la commande
-            save_history(cmd);
-            mbash(cmd);
+            case "history":
+                show_history();
+                break;
+            default:
+                //sinon on l'enregistre dans l'historique et on execute la commande
+                save_history(cmd);
+                mbash(cmd);
         }
     }
     return 0;
