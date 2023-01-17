@@ -11,7 +11,9 @@ char cmd[MAXLI];
 char* args[MAXLI];
 //tableau de chaine de caractere pour stocker l'historique des commandes
 char history[MAXLI][MAXLI];
-//index de l'historique
+//longueur de l'historique
+int history_len = 0;
+//index de l'historique pour parcourir les commandes
 int history_index = 0;
 //chaine de caractere pour stocker le repertoire courant
 char dir[MAXLI];
@@ -64,21 +66,22 @@ void mbash(char* cmd) {
 //fonction pour enregistrer une commande dans l'historique
 void save_history(char* cmd) {
     //si l'historique est plein on decale les commandes
-    if (history_index == MAXLI) {
+    if (history_len == MAXLI) {
         for (int i = 0; i < MAXLI-1; i++) {
             strcpy(history[i], history[i+1]);
         }
-        history_index--;
+        history_len--;
     }
     //on enregistre la commande dans la derniere case de l'historique
-    //et cela en incrementant l'index
-    strcpy(history[history_index++], cmd);
+    //et cela en incrementant la longueur de l'historique
+    strcpy(history[history_len++], cmd);
+    //on 
 }
 
 //fonction pour afficher l'historique
 void show_history() {
     //on affiche les commandes en parcourant l'historique
-    for (int i = 0; i < history_index; i++) {
+    for (int i = 0; i < history_len; i++) {
         printf("%d: %s\n", i+1, history[i]);
     }
 }
@@ -99,6 +102,7 @@ int main(int argc, char** argv) {
         	printf("mbash: %s$ ", dir);
         }    
         // On attend que l'utilisateur entre une commande bash
+    	
         //si on a pas de commande, on quitte (vient du ctrl-D)
         if (fgets(cmd, MAXLI, stdin) == NULL ) {
             printf("\nAu revoir !\n");
@@ -107,19 +111,35 @@ int main(int argc, char** argv) {
         //supprimer le dernier caractère qui est le retour à la ligne "\n"
         cmd[strcspn(cmd, "\n")] = 0;
 
-        switch(cmd){
-            //si la commande est exit on quitte
-            case "exit":
-                printf("Au revoir !\n");
-                break;
-            //si la commande est history on affiche l'historique
-            case "history":
-                show_history();
-                break;
-            default:
-                //sinon on l'enregistre dans l'historique et on execute la commande
-                save_history(cmd);
-                mbash(cmd);
+        //si la commande est exit on quitte
+        if (strcmp(cmd,"exit") == 0){
+            printf("Au revoir !\n");
+        }else if(strcmp(cmd,"history") == 0){
+            //si c'est history, on affiche l'historique
+            show_history();
+        }else if(strcmp(cmd, "\033[A")){
+            //si c'est la fleche du haut, on affiche la commande qui precede la commande de l'index
+            printf("%s" , history[history_index--]);
+        }else if (strcmp(input, "\033[B") == 0) {
+            //pour la flèche bas, on affiche la commande qui suit la commande de l'index
+            history_index++;
+            //on verifie que l'index n'est pas superieur a la longueur de l'historique
+            if (history_index >= history_len){
+                history_index = history_len-1;
+            }
+            printf("%s" , history[history_index]);
+        } else if (strcmp(input, "\033[D") == 0) {
+            //la flèche gauche, on deplace le curseur vers la gauche
+            
+        } else if (strcmp(input, "\033[C") == 0) {
+            // la flèche droite, on deplace le curseur vers la droite
+        }else if(){
+            //si c'est la touche tab, on affiche les commandes qui commencent par la commande courante
+            
+        }else{
+            //sinon on enregistre la commande dans l'historique et on l'execute
+            save_history(cmd);
+            mbash(cmd);
         }
     }
     return 0;
