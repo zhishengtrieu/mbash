@@ -133,8 +133,11 @@ int main(int argc, char** argv) {
             
         } else if (strcmp(cmd, "\033[C") == 0) {
             // la flèche droite, on deplace le curseur vers la droite
-        }else if(){
-            //si c'est la touche tab, on affiche les commandes qui commencent par la commande courante
+        }else if(strcmp(cmd, "\t") == 0){
+            //si c'est la touche tab, on fait de l'autocompletion
+            
+            //si on en a plus de 1, on affiche les commandes possibles
+
 
         }else{
             //sinon on enregistre la commande dans l'historique et on l'execute
