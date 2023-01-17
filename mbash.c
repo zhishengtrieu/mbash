@@ -104,7 +104,8 @@ void pipe_mbash(char** commandes){
             //on redirige la sortie standard vers l'entree du pipe
             dup2(fd[1], STDOUT_FILENO);
             //on execute la premiere commande
-            execlp(commandes[0], commandes[0], NULL);
+            printf("commande 1: %s", commandes[0]);
+            mbash(commandes[0]);
             //on ferme la sortie du pipe
             close(fd[1]);
         } else {
@@ -113,7 +114,8 @@ void pipe_mbash(char** commandes){
             //on redirige l'entree standard vers la sortie du pipe
             dup2(fd[0], STDIN_FILENO);
             //on execute la deuxieme commande
-            execlp(commandes[1], commandes[1], NULL);
+            printf("commande 2: %s", commandes[1]);
+            mbash(commandes[1]);
             //on ferme l'entree du pipe
             close(fd[0]);
         }
