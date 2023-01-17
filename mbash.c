@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <assert.h>
 #include <sys/wait.h>
-#include <ncurses.h>
 #define MAXLI 2048
 //chaine de caractere pour stocker la commande courante
 char cmd[MAXLI];
@@ -76,7 +75,8 @@ void save_history(char* cmd) {
     //on enregistre la commande dans la derniere case de l'historique
     //et cela en incrementant la longueur de l'historique
     strcpy(history[history_len++], cmd);
-    //on 
+    //on sauvegarde l'index de la commande courante
+    history_index = history_len;
 }
 
 //fonction pour afficher l'historique
@@ -89,10 +89,6 @@ void show_history() {
 
 // Le main va stocker les entrers de commandes de l'utilisateur
 int main(int argc, char** argv) {
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
   // Boucle infinie permettant faire fonctionner le programme
   // Elle peut s'arrêter quand l'utilisateur utilise ctrl-D ou ctrl-C 
     while (1) {
@@ -108,44 +104,36 @@ int main(int argc, char** argv) {
         }
 
         /**
-         *  }else if(strcmp(cmd, "\033[A") == 0){
-            //si c'est la fleche du haut, on affiche la commande qui precede la commande de l'index
-            printf("%s" , history[history_index--]);
-        }else if (strcmp(cmd, "\033[B") == 0) {
-            //pour la flèche bas, on affiche la commande qui suit la commande de l'index
-            history_index++;
-            //on verifie que l'index n'est pas superieur a la longueur de l'historique
-            if (history_index >= history_len){
-                history_index = history_len-1;
-            }
-            printf("%s" , history[history_index]);
-        }else if (strcmp(cmd, "\033[D") == 0) {
-            //la flèche gauche, on deplace le curseur vers la gauche
-            
-        }else if (strcmp(cmd, "\033[C") == 0) {
-            // la flèche droite, on deplace le curseur vers la droite
-        }else if(strcmp(cmd, "\t") == 0){
-            //si c'est la touche tab, on fait de l'autocompletion
-            
-            //si on en a plus de 1, on affiche les commandes possibles
-        */
-         // On lit l'entrée utilisateur
+        initscr();
+        cbreak();
+        noecho();
+        keypad(stdscr, TRUE);
+        // On lit l'entrée utilisateur
         int ch = getch();
         switch (ch) {
             case KEY_LEFT:
-                // Code pour la flèche gauche
+                //la flèche gauche, on deplace le curseur vers la gauche
                 break;
             case KEY_RIGHT:
-                // Code pour la flèche droite
+                // la flèche droite, on deplace le curseur vers la droite
                 break;
             case KEY_UP:
-                // Code pour la flèche haut
+                //si c'est la fleche du haut, on affiche la commande qui precede la commande de l'index
+                printf("%s" , history[history_index--]);
                 break;
             case KEY_DOWN:
-                // Code pour la flèche bas
+                //pour la flèche bas, on affiche la commande qui suit la commande de l'index
+                history_index++;
+                //on verifie que l'index n'est pas superieur a la longueur de l'historique
+                if (history_index >= history_len){
+                    history_index = history_len-1;
+                }
+                printf("%s" , history[history_index]);
                 break;
             case 9: //tabulation
-                // Code pour la tabulation
+                //si c'est la touche tab, on fait de l'autocompletion
+            
+                //si on en a plus de 1, on affiche les commandes possibles
                 break;
             case 18: //ctrl-r
                 // Code pour ctrl-r
@@ -157,9 +145,11 @@ int main(int argc, char** argv) {
             default:
                 // Code pour les autres entrées
                 break;
-        }
+        }   
+        endwin();
+        */
+
         // On attend que l'utilisateur entre une commande bash
-    	
         //si on a pas de commande, on quitte (vient du ctrl-D)
         if (fgets(cmd, MAXLI, stdin) == NULL ) {
             printf("\nAu revoir !\n");
@@ -180,7 +170,6 @@ int main(int argc, char** argv) {
             mbash(cmd);
         }
     }
-    endwin();
     return 0;
 }
 
