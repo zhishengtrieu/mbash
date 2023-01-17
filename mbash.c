@@ -100,24 +100,10 @@ int main(int argc, char** argv) {
         	printf("mbash: ~%s$ ", dir+strlen(home));
     	}else{
         	printf("mbash: %s$ ", dir);
-        }    
-        // On attend que l'utilisateur entre une commande bash
-    	
-        //si on a pas de commande, on quitte (vient du ctrl-D)
-        if (fgets(cmd, MAXLI, stdin) == NULL ) {
-            printf("\nAu revoir !\n");
-            break;
         }
-        //supprimer le dernier caractère qui est le retour à la ligne "\n"
-        cmd[strcspn(cmd, "\n")] = 0;
 
-        //si la commande est exit on quitte
-        if (strcmp(cmd,"exit") == 0){
-            printf("Au revoir !\n");
-        }else if(strcmp(cmd,"history") == 0){
-            //si c'est history, on affiche l'historique
-            show_history();
-        }else if(strcmp(cmd, "\033[A") == 0){
+        /**
+         *  }else if(strcmp(cmd, "\033[A") == 0){
             //si c'est la fleche du haut, on affiche la commande qui precede la commande de l'index
             printf("%s" , history[history_index--]);
         }else if (strcmp(cmd, "\033[B") == 0) {
@@ -137,8 +123,31 @@ int main(int argc, char** argv) {
             //si c'est la touche tab, on fait de l'autocompletion
             
             //si on en a plus de 1, on affiche les commandes possibles
+        */
+        int ch;
+        while ((ch = getch()) != KEY_F(1)) {
+            if (ch == KEY_LEFT) {
+                // code pour la flèche gauche
+            } else if (ch == KEY_RIGHT) {
+                // code pour la flèche droite
+            }
+        }
+        // On attend que l'utilisateur entre une commande bash
+    	
+        //si on a pas de commande, on quitte (vient du ctrl-D)
+        if (fgets(cmd, MAXLI, stdin) == NULL ) {
+            printf("\nAu revoir !\n");
+            break;
+        }
+        //supprimer le dernier caractère qui est le retour à la ligne "\n"
+        cmd[strcspn(cmd, "\n")] = 0;
 
-
+        //si la commande est exit on quitte
+        if (strcmp(cmd,"exit") == 0){
+            printf("Au revoir !\n");
+        }else if(strcmp(cmd,"history") == 0){
+            //si c'est history, on affiche l'historique
+            show_history();
         }else{
             //sinon on enregistre la commande dans l'historique et on l'execute
             save_history(cmd);
