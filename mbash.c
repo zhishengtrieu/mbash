@@ -63,7 +63,11 @@ void mbash(char* cmd) {
     }
 }
 
-//fonction pour enregistrer une commande dans l'historique
+/**
+ * fonction pour enregistrer une commande dans l'historique
+ * 
+ * */
+//ne marche pas
 void save_history(char* cmd) {
     //si l'historique est plein on decale les commandes
     if (history_len == MAXLI) {
@@ -139,12 +143,12 @@ int main(int argc, char** argv) {
         	printf("mbash: %s$ ", dir);
         }
 
-        /**
+        /** ne marche pas
         initscr();
         cbreak();
         noecho();
         keypad(stdscr, TRUE);
-        // On lit l'entrée utilisateur
+        // On attend une entrée clavier pour gerer les fleches et la tabulation
         int ch = getch();
         switch (ch) {
             case KEY_LEFT:
@@ -214,6 +218,9 @@ int main(int argc, char** argv) {
             args[i] = NULL;
             //si on a plus d'une commande, on execute le pipe
             if (i > 1){
+                for (int j = 0; j < i; j++){
+                    printf("%s", commandes[j]);
+                }
                 pipe_mbash(commandes);
             }else{
                 //sinon on execute la commande
