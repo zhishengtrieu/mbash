@@ -201,6 +201,7 @@ int main(int argc, char** argv) {
         //si la commande est exit on quitte
         if (strcmp(cmd,"exit") == 0){
             printf("Au revoir !\n");
+            break;
         }else if(strcmp(cmd,"history") == 0){
             //si c'est history, on affiche l'historique
             show_history();
