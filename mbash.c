@@ -38,7 +38,7 @@ void mbash(char* cmd) {
         }
     } else {
         // si c'est une commande normale
-        // On utilise la fonction strtok pour séparer la commande de ses arguments
+        // On utilise la fonction strtok pour separer la commande de ses arguments
         char *token = strtok(cmd, " ");
         int i = 0;
         while (token != NULL) {
@@ -49,14 +49,16 @@ void mbash(char* cmd) {
         //on cree un processus fils puisque execvp et execve remplace le processus courant
         int pid = fork();
         if (pid == 0) {
-            //execvp permet de chercher la librerie correspondant a la commande 
-            execvp(args[0], args);
-            //le fils execute la commande
-            int ret = execve(args[0], args, NULL);
+            // on verifie si la commande se termine par "&"
+            if (strcmp(args[i-1], "&") == 0) {
+                // Supprimer "&" de la liste des arguments
+                args[i-1] = NULL;
+            }
+            //execvp permet de chercher la librerie pour executer la commande
+            int ret = execvp(args[0], args);
             //s'il y a une erreur on l'affiche
             if (ret == -1) {
-                perror("execve");
-                //on tue le fils
+                perror("execvp");
                 exit(1);
             }
         } else {
@@ -134,13 +136,12 @@ void pipe_mbash(char** commandes){
     }
 }
 
-
 /**
  * Le main va stocker les entrers de commandes de l'utilisateur
 */
 int main(int argc, char** argv) {
   // Boucle infinie permettant faire fonctionner le programme
-  // Elle peut s'arrêter quand l'utilisateur utilise ctrl-D ou ctrl-C 
+  // Elle peut s'arreter quand l'utilisateur utilise ctrl-D ou ctrl-C 
     while (1) {
     	//on recupere la racine de l'user courant
     	char * home = getenv("HOME");
@@ -158,21 +159,21 @@ int main(int argc, char** argv) {
         cbreak();
         noecho();
         keypad(stdscr, TRUE);
-        // On attend une entrée clavier pour gerer les fleches et la tabulation
+        // On attend une entree clavier pour gerer les fleches et la tabulation
         int ch = getch();
         switch (ch) {
             case KEY_LEFT:
-                //la flèche gauche, on deplace le curseur vers la gauche
+                //la fleche gauche, on deplace le curseur vers la gauche
                 break;
             case KEY_RIGHT:
-                // la flèche droite, on deplace le curseur vers la droite
+                // la fleche droite, on deplace le curseur vers la droite
                 break;
             case KEY_UP:
                 //si c'est la fleche du haut, on affiche la commande qui precede la commande de l'index
                 printf("%s" , history[history_index--]);
                 break;
             case KEY_DOWN:
-                //pour la flèche bas, on affiche la commande qui suit la commande de l'index
+                //pour la fleche bas, on affiche la commande qui suit la commande de l'index
                 history_index++;
                 //on verifie que l'index n'est pas superieur a la longueur de l'historique
                 if (history_index >= history_len){
@@ -189,11 +190,11 @@ int main(int argc, char** argv) {
                 // Code pour ctrl-r
                 break;
             case '\n':
-                // Si c'est une entrée valide, on traite la commande
+                // Si c'est une entree valide, on traite la commande
                 mbash(cmd);
                 break;
             default:
-                // Code pour les autres entrées
+                // Code pour les autres entrees
         }   
         endwin();
         */
@@ -204,7 +205,7 @@ int main(int argc, char** argv) {
             printf("\nAu revoir !\n");
             break;
         }
-        //supprimer le dernier caractère qui est le retour à la ligne "\n"
+        //on supprime le dernier caractere qui est le retour chariot "\n"
         cmd[strcspn(cmd, "\n")] = 0;
 
         //si la commande est exit on quitte
