@@ -121,6 +121,8 @@ void pipe_mbash(char** commandes){
             //on ferme l'entree du pipe
             close(fd[0]);
         }
+        //une fois le pipe terminee on retourne au mbash
+        exit(1);  
     } else {
         //le pere attend que le fils se termine
         wait(NULL);
@@ -213,15 +215,12 @@ int main(int argc, char** argv) {
             int i = 0;
             char *token = strtok(cmd, "|");
             while (token != NULL) {
-                args[i++] = token;
+                commandes[i++] = token;
                 token = strtok(NULL, "|");
             }
-            args[i] = NULL;
+            commandes[i] = NULL;
             //si on a plus d'une commande, on execute le pipe
             if (i > 1){
-                for (int j = 0; j < i; j++){
-                    printf("%s", commandes[j]);
-                }
                 pipe_mbash(commandes);
             }else{
                 //sinon on execute la commande
