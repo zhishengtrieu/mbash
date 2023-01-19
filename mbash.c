@@ -18,6 +18,9 @@ int history_index = 0;
 //chaine de caractere pour stocker le repertoire courant
 char dir[MAXLI];
 
+/**
+ * fontion pour gerer les commandes du mbash
+*/
 void mbash(char* cmd) {
     // On vérifie si c'est une commande cd
     if (strncmp(cmd, "cd", 2) == 0) {
@@ -65,9 +68,7 @@ void mbash(char* cmd) {
 
 /**
  * fonction pour enregistrer une commande dans l'historique
- * 
- * */
-//ne marche pas
+*/
 void save_history(char* cmd) {
     //si l'historique est plein on decale les commandes
     if (history_len == MAXLI) {
@@ -83,7 +84,9 @@ void save_history(char* cmd) {
     history_index = history_len;
 }
 
-//fonction pour afficher l'historique
+/**
+ * fonction pour afficher l'historique
+*/
 void show_history() {
     //on affiche les commandes en parcourant l'historique
     for (int i = 0; i < history_len; i++) {
@@ -91,7 +94,9 @@ void show_history() {
     }
 }
 
-//fonction pour exectuter plusieurs mbash dans un pipe
+/**
+ * fonction pour exectuter plusieurs mbash dans un pipe
+*/
 void pipe_mbash(char** commandes){
     //on cree un tableau de descripteur de fichier
     int fd[2];
@@ -129,7 +134,10 @@ void pipe_mbash(char** commandes){
     }
 }
 
-// Le main va stocker les entrers de commandes de l'utilisateur
+
+/**
+ * Le main va stocker les entrers de commandes de l'utilisateur
+*/
 int main(int argc, char** argv) {
   // Boucle infinie permettant faire fonctionner le programme
   // Elle peut s'arrêter quand l'utilisateur utilise ctrl-D ou ctrl-C 
@@ -186,7 +194,6 @@ int main(int argc, char** argv) {
                 break;
             default:
                 // Code pour les autres entrées
-                break;
         }   
         endwin();
         */
