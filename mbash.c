@@ -62,8 +62,10 @@ void mbash(char* cmd) {
                 exit(1);
             }
         } else {
-            //le pere attend que le fils se termine
-            wait(NULL);
+            //le pere attend que le fils se termine sauf si la commande se termine par "&"
+            if (strcmp(args[i-1], "&") != 0) {
+                wait(NULL);
+            }
         }
     }
 }
