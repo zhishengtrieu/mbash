@@ -22,7 +22,7 @@ char dir[MAXLI];
  * fontion pour gerer les commandes du mbash
 */
 void mbash(char* cmd) {
-    // On vérifie si c'est une commande cd
+    // On verifie si c'est une commande cd
     if (strncmp(cmd, "cd", 2) == 0) {
         // extraire le chemin du fichier en decalant le pointeur
         char* path = cmd + 3;
@@ -238,4 +238,3 @@ int main(int argc, char** argv) {
     }
     return 0;
 }
-
