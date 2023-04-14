@@ -2,20 +2,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <assert.h>
 #include <sys/wait.h>
+#include <termios.h>
+#include <ctype.h>
 #define MAXLI 2048
-//chaine de caractere pour stocker la commande courante
+
 char cmd[MAXLI];
-//tableau de chaine de caractere pour stocker les arguments de la commande courante
 char* args[MAXLI];
-//tableau de chaine de caractere pour stocker l'historique des commandes
 char history[MAXLI][MAXLI];
-//longueur de l'historique
 int history_len = 0;
-//index de l'historique pour parcourir les commandes
 int history_index = 0;
-//chaine de caractere pour stocker le repertoire courant
 char dir[MAXLI];
 
 /**
@@ -138,86 +134,138 @@ void pipe_mbash(char** commandes){
     }
 }
 
+void display_path(){
+    char* home = getenv("HOME");
+    getcwd(dir, sizeof(dir));
+
+    if (strstr(dir, home) != NULL) {
+        printf("mbash: ~%s$ ", dir + strlen(home));
+    } else {
+        printf("mbash: %s$ ", dir);
+    }
+}
+
+int getch_noblock() {
+    int ch;
+    struct termios oldt, newt;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    ch = getchar();
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+    return ch;
+}
+
+void handle_input() {
+    int ch;
+    int pos = 0; // Position du curseur dans la ligne de commande
+
+    while (1) {
+        ch = getch_noblock();
+
+        if (ch == '\n') {
+            putchar('\n');
+            cmd[pos] = '\0';
+            break;
+        }
+
+        if (ch == 27) { // Touche échappement pour les séquences de touches fléchées
+            getchar(); // Lire le caractère '[' après le caractère d'échappement
+            ch = getchar(); // Lire le caractère de code de la touche fléchée
+
+            switch (ch) {
+                case 'A': // up arrow
+                    if (history_index > 0) {
+                        history_index--;
+                    }
+                    strcpy(cmd, history[history_index]);
+                    int len = strlen(cmd);
+                    for (int i = 0; i < len + pos + 3; i++) {
+                        putchar('\b');
+                    }
+                    printf("\rmbash: %s$ %s", dir, cmd);
+                    pos = len;
+                    break;
+                case 'B': // down arrow
+                    if (history_index < history_len - 1) {
+                        history_index++;
+                    } else {
+                        history_index = history_len;
+                        cmd[0] = '\0';
+                    }
+                    strcpy(cmd, history[history_index]);
+                    int len2 = strlen(cmd);
+                    for (int i = 0; i < len2 + pos + 3; i++) {
+                        putchar('\b');
+                    }
+                    printf("\rmbash: %s$ %s", dir, cmd);
+                    pos = len2;
+                    break;
+                case 'C': // right arrow
+                    if (pos < strlen(cmd)) {
+                        putchar(cmd[pos]);
+                        pos++;
+                    }
+                    break;
+                case 'D': // left arrow
+                    if (pos > 0) {
+                        pos--;
+                        putchar('\b');
+                    }
+                    break;
+            }
+        } else if (ch == 127 || ch == '\b') { // Suppr ou backspace
+            if (pos > 0) {
+                for (int i = pos; i < strlen(cmd); i++) {
+                    cmd[i - 1] = cmd[i];
+                }
+                cmd[strlen(cmd) - 1] = '\0';
+                pos--;
+                putchar('\b');
+                printf("%s ", cmd + pos);
+                for (int i = pos; i <= strlen(cmd); i++) {
+                    putchar('\b');
+                }
+            }
+        } else if (isprint(ch)) {
+            for (int i = strlen(cmd); i >= pos; i--) {
+                cmd[i + 1] = cmd[i];
+            }
+            cmd[pos] = ch;
+            printf("%s", cmd + pos);
+            pos++;
+            for (int i = pos; i < strlen(cmd); i++) {
+                putchar('\b');
+            }
+        }
+    }
+}
+
 /**
  * Le main va stocker les entrers de commandes de l'utilisateur
 */
 int main(int argc, char** argv) {
-  // Boucle infinie permettant faire fonctionner le programme
-  // Elle peut s'arreter quand l'utilisateur utilise ctrl-D ou ctrl-C 
+    // Boucle infinie permettant faire fonctionner le programme
     while (1) {
-    	//on recupere la racine de l'user courant
-    	char * home = getenv("HOME");
-    	//on recupere le repertoire courant
-    	getcwd(dir, sizeof(dir));
-    	//si le repertoire courant contient  tout le home on decale le pointeur du path a afficher
-    	if (strstr(dir, home) != NULL){
-        	printf("mbash: ~%s$ ", dir+strlen(home));
-    	}else{
-        	printf("mbash: %s$ ", dir);
+        display_path();
+
+        handle_input();
+
+        if (cmd[0] == '\0') {
+            continue;
         }
-
-        /** ne marche pas
-        initscr();
-        cbreak();
-        noecho();
-        keypad(stdscr, TRUE);
-        // On attend une entree clavier pour gerer les fleches et la tabulation
-        int ch = getch();
-        switch (ch) {
-            case KEY_LEFT:
-                //la fleche gauche, on deplace le curseur vers la gauche
-                break;
-            case KEY_RIGHT:
-                // la fleche droite, on deplace le curseur vers la droite
-                break;
-            case KEY_UP:
-                //si c'est la fleche du haut, on affiche la commande qui precede la commande de l'index
-                printf("%s" , history[history_index--]);
-                break;
-            case KEY_DOWN:
-                //pour la fleche bas, on affiche la commande qui suit la commande de l'index
-                history_index++;
-                //on verifie que l'index n'est pas superieur a la longueur de l'historique
-                if (history_index >= history_len){
-                    history_index = history_len-1;
-                }
-                printf("%s" , history[history_index]);
-                break;
-            case 9: //tabulation
-                //si c'est la touche tab, on fait de l'autocompletion
-            
-                //si on en a plus de 1, on affiche les commandes possibles
-                break;
-            case 18: //ctrl-r
-                // Code pour ctrl-r
-                break;
-            case '\n':
-                // Si c'est une entree valide, on traite la commande
-                mbash(cmd);
-                break;
-            default:
-                // Code pour les autres entrees
-        }   
-        endwin();
-        */
-
-        // On attend que l'utilisateur entre une commande bash
-        //si on a pas de commande, on quitte (vient du ctrl-D)
-        if (fgets(cmd, MAXLI, stdin) == NULL ) {
-            printf("\nAu revoir !\n");
-            break;
-        }
-        //on supprime le dernier caractere qui est le retour chariot "\n"
-        cmd[strcspn(cmd, "\n")] = 0;
-
+        
         //si la commande est exit on quitte
-        if (strcmp(cmd,"exit") == 0){
+        if (strcmp(cmd, "exit") == 0) {
             printf("Au revoir !\n");
             break;
-        }else if(strcmp(cmd,"history") == 0){
+        } else if (strcmp(cmd, "history") == 0) {
             //si c'est history, on affiche l'historique
             show_history();
-        }else{
+        } else {
             //sinon on enregistre la commande dans l'historique et on l'execute
             save_history(cmd);
             //on verifie si la commande contient un pipe
@@ -228,15 +276,17 @@ int main(int argc, char** argv) {
                 commandes[i++] = token;
                 token = strtok(NULL, "|");
             }
-            commandes[i] = NULL;
+            commandes[i]= NULL;
+
             //si on a plus d'une commande, on execute le pipe
-            if (i > 1){
+            if (i > 1) {
                 pipe_mbash(commandes);
-            }else{
+            } else {
                 //sinon on execute la commande
                 mbash(cmd);
             }
         }
     }
+
     return 0;
 }
