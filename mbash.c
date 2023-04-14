@@ -31,6 +31,8 @@ void mbash(char* cmd) {
         //s'il y a une erreur on l'affiche
         if (ret == -1) {
             perror("chdir");
+            //on vide la variable cmd
+            cmd[0] = '\0';
         }
     } else {
         // si c'est une commande normale
@@ -219,9 +221,6 @@ void handle_input() {
             }
         } else if (ch == 127 || ch == '\b') { // Suppr ou backspace
             if (pos > 0) {
-                for (int i = pos; i < strlen(cmd); i++) {
-                    cmd[i - 1] = cmd[i];
-                }
                 cmd[strlen(cmd) - 1] = '\0';
                 pos--;
                 putchar('\b');
